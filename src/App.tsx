@@ -1,25 +1,21 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect } from 'react';
+import { Widget, addResponseMessage } from "react-chat-widget";
+import "react-chat-widget/lib/styles.css";
 
 function App() {
+  useEffect(() => {
+    addResponseMessage("Welcome to our chatbot!");
+  }, []);
+
+  const handleNewUserMessage = (newMessage: string) => {
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Widget
+      handleNewUserMessage={handleNewUserMessage}
+      title="Chatbot Widget"
+      subtitle="How can we help you?"
+    />
   );
 }
 
