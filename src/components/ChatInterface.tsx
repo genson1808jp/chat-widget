@@ -29,9 +29,9 @@ interface ChatInterfaceProps {
 }
 
 export const ChatInterfaceComponent: React.FC<ChatInterfaceProps> = ({ 
-  isOpen, 
-  onClose, 
-  theme = "light" 
+  isOpen,
+  onClose,
+  theme = "light"
 }) => {
 //   const [messages, setMessages] = useState<Message[]>([
 //     { id: uuidv4(), text: "Hello! How can I assist you today?", sender: "assistant" },
@@ -74,9 +74,8 @@ export const ChatInterfaceComponent: React.FC<ChatInterfaceProps> = ({
 //     e.target.style.height = `${e.target.scrollHeight}px`;
 //   };
 
-//   if (!isOpen) return null;
 
-const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [assistantId, setAssistantId] = useState<string | null>(null);
   const [model, setModel] = useState<Model>("gpt-4o-mini" as Model);
@@ -173,6 +172,7 @@ const [messages, setMessages] = useState<Message[]>([]);
     }
   };
 
+  if (!isOpen) return null;
   return (
     <AnimatePresence>
       <div
@@ -198,7 +198,7 @@ const [messages, setMessages] = useState<Message[]>([]);
                 className="p-2 hover:bg-gray-200 rounded-full transition-colors"
                 aria-label="Close chat"
               >
-                <IoClose size={24} />
+                <IoClose size={24} onClick={onClose} />
               </button>
             </div>
 

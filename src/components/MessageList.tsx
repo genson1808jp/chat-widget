@@ -35,8 +35,10 @@ export const MessageListComponent: React.FC<MessageListComponentProps> = ({ mess
     >
       {messages.map((message) => (
         <MessageComponent 
+          rawResponse={message.rawResponse}
+          sender={message.sender}
+          text={message.text}
           key={message.id} 
-          message={message} 
           theme={theme} 
         />
       ))}
