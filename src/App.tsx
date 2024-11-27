@@ -3,6 +3,7 @@ import { Widget, addResponseMessage } from "react-chat-widget";
 import "react-chat-widget/lib/styles.css";
 import  ChatModal  from  './components/ChatModal';
 import FloatingButton from './components/FloatingButton';
+import ChatInterfaceComponent from './components/ChatInterface';
 
 // function App() {
 //   useEffect(() => {
@@ -62,7 +63,8 @@ const App: React.FC = () => {
   return (
     <div className="relative">
       <FloatingButton onClick={() => setIsChatOpen(true)} />
-      <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} theme="light" />
+      {/* <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} theme="light" /> */}
+      <ChatInterfaceComponent isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} theme="light" />
     </div>
   );
 };
