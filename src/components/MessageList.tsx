@@ -1,47 +1,35 @@
-import React, { useRef, useEffect } from 'react';
-import { Message, Theme } from '../types';
-import { MessageComponent } from '../components/Message';
+import React, { useRef, useEffect, ReactNode } from "react";
+import Message from "./Message";
+import { Message as MessageType } from "../types";
 
-interface MessageListComponentProps {
-  messages: Message[];
-  theme: Theme;
-}
-
-export const MessageListComponent: React.FC<MessageListComponentProps> = ({ messages, theme }) => {
-  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+export default function MessageList({ messages, qaComponent }: { messages: MessageType[], qaComponent: ReactNode}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
   return (
-    <div 
-      ref={chatContainerRef}
-      className={`
-        h-96 
-        overflow-y-scroll 
-        scrollbar-hide 
-        scroll-smooth 
-        p-4 
-        space-y-4
-        ${theme.bg}
-      `}
-      style={{
-        scrollbarWidth: 'none', // For Firefox
-        msOverflowStyle: 'none', // For Internet Explorer and Edge
-      }}
+    <div
+      ref={containerRef}
+      className="pb-[100px] mx-auto p-10 overflow-y-scroll " // h-full
     >
-      {messages.map((message) => (
-        <MessageComponent 
-          rawResponse={message.rawResponse}
-          sender={message.sender}
-          text={message.text}
-          key={message.id} 
-          theme={theme} 
-        />
+      {messages.map((message, index) => (
+        <div key={index}>
+          <Message
+            rawResponse={message.rawResponse}
+            text={message.text}
+            sender={message.sender}
+            toolCalls={message.toolCalls}
+          />
+        </div>
       ))}
+      {/* Invisible div to act as scroll target */}
+      <div ref={bottomRef} />
+      { qaComponent }
     </div>
   );
-};
+}

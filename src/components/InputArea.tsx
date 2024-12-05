@@ -1,46 +1,50 @@
-import React, { useRef, useState } from 'react';
-import { FiSend } from "react-icons/fi";
-import { Theme} from '../types';
+import { useState } from "react";
 
-interface InputAreaComponentProps {
-  theme: Theme;
-  onSendMessage: (message: string) => void;
-}
-
-export const InputAreaComponent: React.FC<InputAreaComponentProps> = ({
-  theme,
+export default function InputArea({
   onSendMessage,
-}) => {
-  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+}: {
+  onSendMessage: (message: string) => void;
+}) {
   const [input, setInput] = useState("");
 
-    const handleSubmit = () => {
-        if (input.trim()) {
-        onSendMessage(input);
-        setInput("");
-        }
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (input.trim()) {
+      onSendMessage(input);
+      setInput("");
+    }
   };
 
   return (
-    <div className="p-4 border-t">
-      <div className="flex items-end space-x-2">
-        <textarea
-          ref={inputRef}
+    <form onSubmit={handleSubmit} className=" p-0 absolute bottom-2 left-2 right-2">
+      <div className="flex h-[60px] mx-auto bottom-0  left-5 right-5">
+        <input
+          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          className={`flex-1 p-2 rounded-lg resize-none max-h-32 ${theme.input}`}
-          rows={1}
-          aria-label="Message input"
+          className=" h-full w-full rounded-[30px] px-10 focus:outline-none bg-[#2f2f2f] placeholder-white text-white"
+          placeholder="Message StreamChat"
         />
         <button
-          onClick={handleSubmit}
-          className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          aria-label="Send message"
+          type="submit"
+          className=" absolute right-[10px] bottom-[10px] w-[40px] h-[40px] rounded-[20px] bg-[#676767] text-white  hover:opacity-80 flex items-center justify-center"
         >
-          <FiSend size={20} />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              fillRule="evenodd"
+              d="M11.394 6.68a.857.857 0 0 1 1.212 0l3.857 3.857a.857.857 0 0 1-1.212 1.212l-2.394-2.394v7.36a.857.857 0 0 1-1.714 0v-7.36l-2.394 2.394a.857.857 0 1 1-1.212-1.212z"
+              clipRule="evenodd"
+            />
+          </svg>
         </button>
       </div>
-    </div>
+    </form>
   );
-};
+}

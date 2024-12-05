@@ -3,7 +3,7 @@ import { ThreadState, Client } from "@langchain/langgraph-sdk";
 
 const createClient = () => {
   // const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api";
-  const apiUrl =  "http://localhost:64592";
+  const apiUrl =  'http://langgraph-api:8000'
   return new Client({
     apiUrl,
   });
@@ -46,6 +46,7 @@ export const sendMessage = async (params: {
   messageId: string;
   message: string | null;
   model: string;
+  assistant: string;
   userId: string;
   systemInstructions: string;
   streamMode: StreamMode;
@@ -69,6 +70,10 @@ export const sendMessage = async (params: {
     configurable: {
       model_name: params.model,
       system_instructions: params.systemInstructions,
+      user_id: params.userId,
+      retriever_provider: "qdrant",
+      // agent_models: "ndi-checker",
+      agent_models: params.assistant,
     },
   };
 
@@ -78,3 +83,4 @@ export const sendMessage = async (params: {
     streamMode: params.streamMode,
   });
 };
+

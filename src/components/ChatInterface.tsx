@@ -1,14 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
-import { IoClose } from "react-icons/io5";
-import { motion, AnimatePresence } from "framer-motion";
-import Draggable from "react-draggable";
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
-
-import { themes } from '../themes';
-import { MessageListComponent } from '../components/MessageList';
-import { InputAreaComponent } from '../components/InputArea';
-
-import Settings, { StreamMode } from "./Settings";
+import MessageList from "./MessageList";
+import InputArea from "./InputArea";
+import HomeComponent from "./HomeComponent";
+import Settings, { AssistantKey, StreamMode } from "./Settings";
 import { Message, Model } from "../types";
 import { handleStreamEvent } from "../utils/streamHandler";
 import {
@@ -20,65 +17,19 @@ import {
 import { ASSISTANT_ID_COOKIE } from "../constants";
 import { getCookie, setCookie } from "../utils/cookies";
 import { ThreadState } from "@langchain/langgraph-sdk";
-// import { GraphInterrupt } from "../Interrupted";
+import { GraphInterrupt } from "./Interrupted";
 
 interface ChatInterfaceProps {
-  isOpen: boolean;
-  onClose: () => void;
-  theme?: "light" | "dark";
+  toggleModal: () => void; // Define the type of the function prop
 }
 
-export const ChatInterfaceComponent: React.FC<ChatInterfaceProps> = ({ 
-  isOpen,
-  onClose,
-  theme = "light"
-}) => {
-//   const [messages, setMessages] = useState<Message[]>([
-//     { id: uuidv4(), text: "Hello! How can I assist you today?", sender: "assistant" },
-//   ]);
-//   const [inputMessage, setInputMessage] = useState("");
-  const selectedTheme = themes[theme];
-
-//   const handleSendMessage = () => {
-//     if (inputMessage.trim()) {
-//       const newMessage: Message = {
-//         id: uuidv4(),
-//         text: inputMessage,
-//         sender: "user"
-//       };
-//       setMessages([...messages, newMessage]);
-//       setInputMessage("");
-
-//       // Simulate assistant response
-//       setTimeout(() => {
-//         const assistantResponse: Message = {
-//           id: uuidv4(),
-//           text: "I received your message. How else can I help?",
-//           sender: "assistant"
-//         };
-//         setMessages(prev => [...prev, assistantResponse]);
-//       }, 1000);
-//     }
-//   };
-
-//   const handleKeyPress = (e: React.KeyboardEvent) => {
-//     if (e.key === "Enter" && !e.shiftKey) {
-//       e.preventDefault();
-//       handleSendMessage();
-//     }
-//   };
-
-//   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-//     setInputMessage(e.target.value);
-//     e.target.style.height = "auto";
-//     e.target.style.height = `${e.target.scrollHeight}px`;
-//   };
-
-
+export default function ChatInterface( { toggleModal }: ChatInterfaceProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [assistantId, setAssistantId] = useState<string | null>(null);
   const [model, setModel] = useState<Model>("gpt-4o-mini" as Model);
+  const [assistant, setAssistant] = useState<AssistantKey>("ndi-checker" as AssistantKey);
   const [streamMode, setStreamMode] = useState<StreamMode>("messages");
   const [userId, setUserId] = useState<string>("");
   const [systemInstructions, setSystemInstructions] = useState<string>("");
@@ -87,6 +38,7 @@ export const ChatInterfaceComponent: React.FC<ChatInterfaceProps> = ({
     useState<ThreadState<Record<string, any>>>();
   const [graphInterrupted, setGraphInterrupted] = useState(false);
   const [allowNullMessage, setAllowNullMessage] = useState(false);
+  const [showQa, setShowQa] = useState(false);
 
   const messageListRef = useRef<HTMLDivElement>(null);
 
@@ -95,16 +47,14 @@ export const ChatInterfaceComponent: React.FC<ChatInterfaceProps> = ({
       let assistantId = getCookie(ASSISTANT_ID_COOKIE);
       if (!assistantId) {
         const assistant = await createAssistant(
-        //   process.env.NEXT_PUBLIC_LANGGRAPH_GRAPH_ID as string
-        "agent"
+          // process.env.NEXT_PUBLIC_LANGGRAPH_GRAPH_ID as string
+          "retrieval_graph"
         );
         assistantId = assistant.assistant_id as string;
         setCookie(ASSISTANT_ID_COOKIE, assistantId);
         setAssistantId(assistantId);
       }
 
-      console.log("Assistant ID:", assistantId);
-      console.log("-----------------------------create thread and user id");
       const { thread_id } = await createThread();
       setThreadId(thread_id);
       setAssistantId(assistantId);
@@ -115,11 +65,11 @@ export const ChatInterfaceComponent: React.FC<ChatInterfaceProps> = ({
   }, []);
 
   useEffect(() => {
-    console.log( messages);
+    console.log(messages)
     if (messageListRef.current) {
       messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, showQa]);
 
   const handleSendMessage = async (message: string | null) => {
     const messageId = uuidv4();
@@ -149,6 +99,7 @@ export const ChatInterfaceComponent: React.FC<ChatInterfaceProps> = ({
         assistantId,
         message,
         messageId,
+        assistant,
         model,
         userId,
         systemInstructions,
@@ -172,50 +123,55 @@ export const ChatInterfaceComponent: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  if (!isOpen) return null;
+  const onQaChange = (value: boolean) => {
+    setShowQa(value);
+  };
+
   return (
-    <AnimatePresence>
-      <div
-        className="fixed bottom-4 right-4 z-50 w-full max-w-lg"
-        aria-modal="true"
-        role="dialog"
-        aria-label="Chat modal"
-      >
-        <Draggable
-          handle=".handle"
-          bounds="parent"
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className={`w-full max-w-lg rounded-xl shadow-2xl ${selectedTheme.bg} ${selectedTheme.text}`}
+    <div className="w-full h-full bg-[#212121] overflow-hidden rounded-lg shadow-md">
+  <Settings
+    onQaChange={onQaChange}
+    toggleModal={toggleModal}
+  onModelChange={setModel}
+  onAssistantChange={setAssistant}
+  onSystemInstructionsChange={setSystemInstructions}
+  currentModel={model as any}
+  currentAssistant={assistant as any}
+  currentSystemInstructions={systemInstructions}
+  onStreamModeChange={setStreamMode}
+  currentStreamMode={streamMode}
+/>
+{messages.length === 0 ? (
+  <HomeComponent asisstant={assistant} onQaChange={onQaChange} onMessageSelect={handleSendMessage} />
+) : (
+  <div ref={messageListRef} className="overflow-y-auto h-full">
+    <MessageList
+      messages={messages}
+      qaComponent={showQa && <HomeComponent asisstant={assistant} onQaChange={onQaChange} onMessageSelect={handleSendMessage} />} />
+      {!!graphInterrupted && !!threadState && !!threadId ? (
+        <div className="flex items-center justify-start w-2/3 mx-auto">
+          <GraphInterrupt
+            setAllowNullMessage={setAllowNullMessage}
+            threadId={threadId}
+            state={threadState}
+          />
+        </div>
+      ) : null}
+      {allowNullMessage && (
+        <div className="flex flex-col w-2/3 mx-auto overflow-y-scroll pb-[100px]">
+          <button
+            onClick={async () => handleSendMessage(null)}
+            disabled={isLoading}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-2 max-w-[400px] mx-auto"
           >
-            <div className="handle cursor-move p-4 border-b flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Leader bot</h2>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-                aria-label="Close chat"
-              >
-                <IoClose size={24} onClick={onClose} />
-              </button>
-            </div>
+            Continue
+          </button>
+        </div>
+      )}
+    </div>
+  )}
+  <InputArea onSendMessage={handleSendMessage} />
+</div>
 
-            <MessageListComponent
-              messages={messages}
-              theme={selectedTheme}
-            />
-
-            <InputAreaComponent
-              theme={selectedTheme}
-              onSendMessage={handleSendMessage}
-            />
-          </motion.div>
-        </Draggable>
-      </div>
-    </AnimatePresence>
   );
-};
-
-export default ChatInterfaceComponent;
+}

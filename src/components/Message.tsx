@@ -1,19 +1,22 @@
-import React, {useState, useEffect} from 'react';
-import { motion } from 'framer-motion';
-import { Message, Theme } from '../types';
-import ReactJson from 'react-json-view'
 import Markdown from "react-markdown";
+import { ToolCall as ToolCallType } from "../types";
+import React, { useState, useEffect } from "react";
+// import dynamic from "next/dynamic";
 
+// Throws build errors if we try to import this normally
+import ReactJson from 'react-json-view';
 
-
-interface MessageComponentProps {
+export default function Message({
+  text,
+  rawResponse,
+  sender,
+  toolCalls,
+}: {
   text?: string;
   rawResponse?: Record<string, any>;
   sender: string;
-  theme: Theme
-}
-
-export const MessageComponent: React.FC<MessageComponentProps> = ({ text, sender, rawResponse, theme}) => {
+  toolCalls?: ToolCallType[];
+}) {
   const isBot = sender === "ai";
   const [isVisible, setIsVisible] = useState(false);
 
@@ -38,29 +41,41 @@ export const MessageComponent: React.FC<MessageComponentProps> = ({ text, sender
   } else {
     messageContent = (
       <>
+        {/* {toolCalls &&
+          toolCalls.length > 0 &&
+          toolCalls.map((toolCall) => (
+            <ToolCall key={toolCall.id} {...toolCall} />
+          ))} */}
         {isBot ? <Markdown>{text}</Markdown> : text}
       </>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`flex ${sender === "user" ? "justify-end" : "justify-start"}
-      mb-4 relative transition-opacity duration-200 ease-in-out ${
+    <div
+      className={`flex ${
+        isBot ? "justify-start" : "justify-end"
+      } mb-4 relative transition-opacity duration-200 ease-in-out ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
+      {isBot && (
+        <img
+          src="/public/chatbot.png"
+          alt="Bot Icon"
+          className="absolute left-3 top-4 w-10 h-10 rounded-full"
+          style={{ transform: "translateX(-120%)" }}
+        />
+      )}
       <div
-        className={`max-w-[80%] p-3 rounded-lg ${
-          sender === "user"
-            ? `${theme.user} ml-auto`
-            : `${theme.assistant} mr-auto`
+        className={`overflow-x-wrap break-words p-5 rounded-3xl ${
+          isBot
+            ? "w-full opacity-90 text-gray-200"
+            : "mt-10 max-w-md text-gray-200 opacity-90"
         }`}
       >
-        <p className="break-words">{messageContent}</p>
+        {messageContent}
       </div>
-    </motion.div>
+    </div>
   );
-};
+}

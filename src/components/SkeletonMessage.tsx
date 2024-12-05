@@ -1,9 +1,16 @@
-import React from 'react';
-
-export const SkeletonMessageComponent: React.FC = () => {
+export default function SkeletonMessage() {
   return (
-    <div className="flex animate-pulse">
-      <div className="bg-gray-300 h-12 w-3/4 rounded-lg"></div>
+    <div className="flex justify-start mb-4 relative">
+      <img
+        src="/public/chatbot.png"
+        alt="Bot Icon"
+        className="absolute left-0 top-4 w-8 h-8 rounded-full"
+        style={{ transform: "translateX(-120%)" }}
+      />
+      <div className="w-full p-5 rounded-3xl  ">
+        <div className="h-4 bg-green-600 rounded w-3/4 mb-2 animate-pulse"></div>
+        <div className="h-4 bg-green-600 rounded w-1/2 animate-pulse"></div>
+      </div>
     </div>
   );
-};
+}

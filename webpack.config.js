@@ -44,6 +44,13 @@ module.exports = {
   },
   module: {
     rules: [
+       {
+          test: /\.(png|jpg|jpeg|gif|svg)$/,
+          type: 'asset/resource',
+          generator: {
+              filename: 'images/[name][ext]', // Đưa ảnh vào thư mục 'images'
+          },
+      },
       {
         test: /\.css$/,
         use: [

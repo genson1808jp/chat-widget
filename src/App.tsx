@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Widget, addResponseMessage } from "react-chat-widget";
 import "react-chat-widget/lib/styles.css";
-import  ChatModal  from  './components/ChatModal';
-import FloatingButton from './components/FloatingButton';
-import ChatInterfaceComponent from './components/ChatInterface';
+import ChatbotModal from './components/ChatbotModal';
+import { DomainProtectedWidget } from './components/Protect';
 
 // function App() {
 //   useEffect(() => {
@@ -58,13 +56,14 @@ import ChatInterfaceComponent from './components/ChatInterface';
 // }
 
 const App: React.FC = () => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
-
   return (
     <div className="relative">
-      <FloatingButton onClick={() => setIsChatOpen(true)} />
-      {/* <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} theme="light" /> */}
-      <ChatInterfaceComponent isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} theme="light" />
+          <h1>Chat with StreamChat</h1>
+      {/* <ChatInterface /> */}
+      <ChatbotModal/>
+      {/* <DomainProtectedWidget>
+        <ChatbotModal />
+      </DomainProtectedWidget> */}
     </div>
   );
 };
