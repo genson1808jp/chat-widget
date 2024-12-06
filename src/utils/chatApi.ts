@@ -3,7 +3,9 @@ import { ThreadState, Client } from "@langchain/langgraph-sdk";
 
 const createClient = () => {
   // const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api";
-  const apiUrl =  'http://langgraph-api:8000'
+  const apiUrl = "http://ec2-52-70-84-41.compute-1.amazonaws.com:8123";
+  console.log(apiUrl);
+  // const apiUrl =  'http://localhost:8123'
   return new Client({
     apiUrl,
   });

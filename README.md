@@ -48,4 +48,8 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 ```bash
 yarn add -D typescript ts-loader webpack webpack-cli copy-webpack-plugin style-loader css-loader ts-node webpack-dev-server
 
+rm bundle.min.js
+sudo rm  /usr/share/nginx/html/public/bundle.min.js
+sudo cp bundle.min.js  /usr/share/nginx/html/public
+sudo systemctl restart nginx
 ```
